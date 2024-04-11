@@ -152,7 +152,7 @@ void signal_handler(int signo)
     {
         send_icmp_echo_packet();
     }
-    else if (signo == SIGINT)
+    else if (signo == SIGINT)   /* ctrl + c */
     {
         struct timespec ts_end, ts_diff;
         if (clock_gettime(CLOCK_MONOTONIC, &ts_end) < 0)

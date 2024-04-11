@@ -58,7 +58,7 @@ typedef struct thread_arg
 /* thread pool structure */
 typedef struct thread_pool
 {
-    task_queue *tq;   /* task queue */
+    task_queue *tq;     /* task queue */
 
     int thread_cnt;     /* worker thread count */
     thread_arg *t_args; /* worker threads */
@@ -192,7 +192,7 @@ void destroy_thread_pool(thread_pool *pool)
     /* worker queue 파괴 */
     task_queue_destroy(pool->tq, free);
 
-    /* 자원 해제*/
+    /* 자원 해제 */
     free(pool->t_args);
     free(pool);
 }

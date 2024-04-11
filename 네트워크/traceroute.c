@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
         ip->ip_hl = 5;      /* header len */
         ip->ip_tos = 0;     /* type of service */
         ip->ip_len = htons(IP_PACKET_SIZE);     /* total length: 28 */
-        ip->ip_id = htons(IP_ID);      /* identification */
-        ip->ip_off = 0;     /* fragment offset field */
-        ip->ip_ttl = hop;   /* time to live */
+        ip->ip_id = htons(IP_ID);               /* identification */
+        ip->ip_off = 0;             /* fragment offset field */
+        ip->ip_ttl = hop;           /* time to live */
         ip->ip_p = IPPROTO_ICMP;    /* protocol */
-        ip->ip_sum = 0;     /* check sum */
+        ip->ip_sum = 0;             /* check sum */
         /* source address */
         if (inet_pton(AF_INET, src_ip, &ip->ip_src.s_addr) < 0)
             unix_error("inet_pton");
@@ -291,6 +291,9 @@ struct timespec diff_timespec(const struct timespec *ts1, const struct timespec 
 
 int recv_timeout(int fd, void *buffer, size_t n, int flags, int timeout_ms)
 {
+    /**
+     * 1s = 1000 ms = 1000000us
+    **/
     long sec = timeout_ms / 1000;
     long usec = (timeout_ms % 1000) * 1000;
     

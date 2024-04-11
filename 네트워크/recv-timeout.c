@@ -5,7 +5,7 @@
  * recv_timeout.c
  * 
  * I/O 멀티플랙싱 함수인 select()를 사용해서 recv() 함수의 동작에서 타임아웃 기능르 구현한 프로그램 입니다.
- * 5초 이상 아무런 응답이 없으면 연결이 끊깁니다.
+ * 클라이언트로 부터 5초 이상 아무런 응답이 없으면 연결이 끊깁니다.
 **/
 
 #define _POSIX_C_SOURCE  200809L
@@ -41,6 +41,9 @@ int make_listen_socket(const char *host, const char *port);
 
 ssize_t recv_timeout(int fd, void *buffer, size_t n, int flags, int timeout_ms)
 {
+    /**
+     * 1s = 1000 ms = 1000000us
+    **/
     long sec = timeout_ms / 1000;
     long usec = (timeout_ms % 1000) * 1000;
     
@@ -197,6 +200,7 @@ int make_listen_socket(const char *host, const char *port)
             continue;
         }
 
+        /* reuse address */
         if (setsockopt_reuseaddr(fd_listener) < 0)   /* error: setsockopt_reuseaddr() */
         {
             close(fd_listener);
@@ -236,22 +240,19 @@ int make_listen_socket(const char *host, const char *port)
         perror("getsockname");
         exit(EXIT_FAILURE);
     }
-    else
+    
+    char host[INET6_ADDRSTRLEN];
+    char port[PORTSTRLEN];
+    if ((rc_gai = getnameinfo(
+        (struct sockaddr *)&saddr_s, len_saddr_s, 
+        host, sizeof(host),
+        port, sizeof(port),
+        NI_NUMERICHOST | NI_NUMERICSERV)))
     {
-        char host[INET6_ADDRSTRLEN];
-        char port[PORTSTRLEN];
-        if ((rc_gai = getnameinfo(
-            (struct sockaddr *)&saddr_s, len_saddr_s, 
-            host, sizeof(host),
-            port, sizeof(port),
-            NI_NUMERICHOST | NI_NUMERICSERV)))
-        {
-            fprintf(stderr, "getnameinfo: %s\n", gai_strerror(rc_gai));
-            exit(EXIT_FAILURE);
-        }
-        printf("Server opened: (%s:%s)\n", host, port);
+        fprintf(stderr, "getnameinfo: %s\n", gai_strerror(rc_gai));
+        exit(EXIT_FAILURE);
     }
-
+    printf("Server opened: (%s:%s)\n", host, port);
 
     return fd_listener;
 }
