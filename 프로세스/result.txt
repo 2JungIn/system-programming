@@ -1,0 +1,5 @@
+-rw-rw-r-- 1 user user     0  3월 14 23:22 result.txt
+-rw-rw-r-- 1 user user   243  2월 19 20:22 input.txt
+-rw-rw-r-- 1 user user   244  2월 23 14:46 output.txt
+-rw-rw-r-- 1 user user   881  3월 14 23:22 fork-exec-example.c
+-rw-rw-r-- 1 user user  1881  3월 14 23:21 pipe-example.c
