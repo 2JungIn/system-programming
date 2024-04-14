@@ -1,7 +1,7 @@
 /**
  * Reference
  * [1] https://github.com/neelkanth13/ipv4-and-ipv6-raw-sockets/blob/master/icmpv4%20ping%20packet%20raw%20socket%20code.c
- * [3] https://ko.wikipedia.org/wiki/%EC%9D%B8%ED%84%B0%EB%84%B7_%EC%A0%9C%EC%96%B4_%EB%A9%94%EC%8B%9C%EC%A7%80_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C
+ * [2] https://ko.wikipedia.org/wiki/%EC%9D%B8%ED%84%B0%EB%84%B7_%EC%A0%9C%EC%96%B4_%EB%A9%94%EC%8B%9C%EC%A7%80_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C
  *
  * ping.c 
  * 

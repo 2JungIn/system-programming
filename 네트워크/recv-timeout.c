@@ -4,7 +4,7 @@
  * 
  * recv_timeout.c
  * 
- * I/O 멀티플랙싱 함수인 select()를 사용해서 recv() 함수의 동작에서 타임아웃 기능르 구현한 프로그램 입니다.
+ * I/O 멀티플랙싱 함수인 select()를 사용해서 recv() 함수의 동작에서 타임아웃 기능을 구현한 프로그램 입니다.
  * 클라이언트로 부터 5초 이상 아무런 응답이 없으면 연결이 끊깁니다.
 **/
 
@@ -241,18 +241,18 @@ int make_listen_socket(const char *host, const char *port)
         exit(EXIT_FAILURE);
     }
     
-    char host[INET6_ADDRSTRLEN];
-    char port[PORTSTRLEN];
+    char bind_addr[INET6_ADDRSTRLEN];
+    char bind_port[PORTSTRLEN];
     if ((rc_gai = getnameinfo(
         (struct sockaddr *)&saddr_s, len_saddr_s, 
-        host, sizeof(host),
-        port, sizeof(port),
+        bind_addr, sizeof(bind_addr),
+        bind_port, sizeof(bind_port),
         NI_NUMERICHOST | NI_NUMERICSERV)))
     {
         fprintf(stderr, "getnameinfo: %s\n", gai_strerror(rc_gai));
         exit(EXIT_FAILURE);
     }
-    printf("Server opened: (%s:%s)\n", host, port);
+    printf("Server opened: (%s:%s)\n", bind_addr, bind_port);
 
     return fd_listener;
 }

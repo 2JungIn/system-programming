@@ -24,6 +24,7 @@
 
     스레드풀 구현 예제 입니다.
 
+
 ### 메모리
 1. **[file copy](./메모리/simple-copy.c)**
 
@@ -45,11 +46,27 @@
 
 
 ### 네트워크
-1. **[recv timeout](./네트워크/recv-timeout.c)**
+1. **[바이트 순서](./네트워크/endian.c)**
 
-    recv()의 동작에서 타임아웃 기능르 구현한 프로그램 입니다.
+    이 컴퓨터의 바이트 순서가 어떤 엔디안을 사용하는지 출력하는 프로그램 입니다.
 
-2. **[dnslookup](./네트워크/dnslookup.c)**
+    <details>
+    <summary>실행 결과</summary>
+    <pre>
+    $ ./endian
+    little endian!
+    </pre>
+    </deatils>
+
+3. **[체크섬](./네트워크/internet-checksum.c)**
+
+    rfc1071의 체크섬 함수를 구현한 프로그램 입니다.
+
+4. **[recv timeout](./네트워크/recv-timeout.c)**
+
+    recv()의 동작에서 타임아웃 기능을 구현한 프로그램 입니다.
+
+5. **[dnslookup](./네트워크/dnslookup.c)**
 
     도메인 주소의 IP주소를 출력하는 프로그램 입니다.
 
@@ -78,12 +95,11 @@
     </pre>
     </details>
 
-
-3. **[packet capture](./네트워크/packet-capture.c)**
+6. **[packet capture](./네트워크/packet-capture.c)**
 
     raw 소켓을 사용해서 패킷을 캡쳐하는 프로그램입니다.
 
-4. **[ping](./네트워크/ping.c)**
+7. **[ping](./네트워크/ping.c)**
 
     raw 소켓을 이용해서 핑을 구현한 프로그램 입니다.
 
@@ -117,7 +133,8 @@
     3 packets transmitted, 0 received, 100%  loss, time 2246ms
     </pre>
     </details>
-5. **[traceroute](./네트워크/traceroute.c)**
+
+8. **[traceroute](./네트워크/traceroute.c)**
 
     raw 소켓을 이용해서 목적지 주소로 이동하기 위한 경로들을 출력하는 프로그램 입니다.
 
