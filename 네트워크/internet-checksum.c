@@ -6,6 +6,7 @@
  * [4] https://noodles8436.tistory.com/13
  * 
  * internet-checksum.c
+ * 
  * rfc1071의 체크섬 함수를 구현한 프로그램 입니다.
 **/
 
@@ -32,11 +33,11 @@
 
 struct pseudo_header
 {
-    uint32_t src_addr;  /* src address */
-    uint32_t dest_addr; /* dest address */
-    uint8_t placeholder;   /* only 0 */
-    uint8_t protocol;   /* ip protocol (IPPROTO_TCP, IPPROTO_UDP ...) */
-    uint16_t tcp_segment_length;    /* tcp header + tcp data (byte) */
+    uint32_t src_addr;      /* src address */
+    uint32_t dest_addr;     /* dest address */
+    uint8_t placeholder;    /* only 0 */
+    uint8_t protocol;       /* ip protocol (IPPROTO_TCP, IPPROTO_UDP ...) */
+    uint16_t length;        /* header + data (byte) (tcp header + tcp data) */
 };
 
 void unix_error(const char *msg);
@@ -122,7 +123,10 @@ void Test01(void)
     char packet[PACKET_SIZE];
     memset(packet, 0, sizeof(packet));
 
-    unsigned short packet_len = IP_HEADER_LEN + ICMP_HEADER_LEN + ICMP_DATA_LEN;
+    /* 패킷 길이 */
+    uint16_t packet_len = IP_HEADER_LEN + ICMP_HEADER_LEN + ICMP_DATA_LEN;
+
+
     /* IPv4 헤더 작성 */
     struct ip *ip = (struct ip *)packet;
     ip->ip_v = 4;             /* version */
@@ -142,6 +146,7 @@ void Test01(void)
         unix_error("inet_pton");
     /* 체크섬 계산 */
     ip->ip_sum = chksum((unsigned short *)ip, IP_HEADER_LEN);
+
 
     /* icmp 헤더 작성 */
     struct icmp *icmp = (struct icmp *)(packet + IP_HEADER_LEN);
@@ -177,14 +182,18 @@ void Test02(void)
     char packet[PACKET_SIZE];
     memset(packet, 0, sizeof(packet));
 
-    
-    int tcp_option_len = TCPOLEN_MAXSEG             /* Maximum segment size */
+    /* TCP 옵션 길이 */
+    uint16_t tcp_option_len = TCPOLEN_MAXSEG        /* Maximum segment size */
                         + TCPOLEN_SACK_PERMITTED    /* SACK permitted */
-                        + TCPOLEN_TIMESTAMP         /* Timestamps: TSval */
+                        + TCPOLEN_TIMESTAMP         /* Timestamps */
                         + 1     /* Nop */
                         + TCPOLEN_WINDOW;   /* Window scale */
+
+    /* TCP 헤더 길이 = TCP 기본 기본 헤더(20 byte) + TCP 옵션(0 ~ 40 byte) */
     uint16_t tcp_header_len = (TCP_HEADER_LEN + tcp_option_len);
     uint16_t data_size = 0;
+
+    /* 패킷 길이 */
     uint16_t packet_len = IP_HEADER_LEN + tcp_header_len + data_size;
 
 
@@ -196,8 +205,8 @@ void Test02(void)
     ip->ip_len = htons(packet_len);    /* total length */
     ip->ip_id = htons(0xc620);    /* identification */
     ip->ip_off = htons(IP_DF);    /* fragment offset field */
-    ip->ip_ttl = 64;         /* time to live */
-    ip->ip_p = IPPROTO_TCP;  /* protocol */
+    ip->ip_ttl = 64;              /* time to live */
+    ip->ip_p = IPPROTO_TCP;       /* protocol */
     ip->ip_sum = 0;
     /* src address */
     if (inet_pton(AF_INET, "127.0.0.1", &ip->ip_src.s_addr) < 0)
@@ -261,7 +270,7 @@ void Test02(void)
     ph->dest_addr = ip->ip_dst.s_addr;
     ph->placeholder = 0;
     ph->protocol = ip->ip_p;
-    ph->tcp_segment_length = htons(tcp_header_len + data_size);
+    ph->length = htons(tcp_header_len + data_size);
 
     memcpy(dummy_packet + sizeof(struct pseudo_header), tcp, tcp_header_len + data_size);
 
@@ -269,9 +278,10 @@ void Test02(void)
     tcp->th_sum = chksum((unsigned short *)dummy_packet, dummy_packet_len);
 
     print_byte(packet, packet_len);
-    printf("%d\n", chksum((unsigned short *)ip, IP_HEADER_LEN));
+    printf("[checksum]\n");
+    printf("ip: %d\n", chksum((unsigned short *)ip, IP_HEADER_LEN));
     memcpy(dummy_packet + sizeof(struct pseudo_header), tcp, tcp_header_len + data_size);
-    printf("%d\n", chksum((unsigned short *)dummy_packet, dummy_packet_len));
+    printf("tcp: %d\n", chksum((unsigned short *)dummy_packet, dummy_packet_len));
 }
 
 

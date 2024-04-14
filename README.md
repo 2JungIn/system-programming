@@ -4,29 +4,29 @@
 1. **[fork-exec](./프로세스/fork-exec-example.c)**
 
     fork-exec 모델을 간단히 구현한 프로그램입니다.
-2. **[pipe](./프로세스/pipe-example.c)**
+2. **[파이프](./프로세스/pipe-example.c)**
 
     쉘에서 파이프(` | `) 연산을 간단히 구현한 프로그램입니다.
-3. **[multi pipe](./프로세스/multi-pipe-example.c)**
+3. **[멀티 파이프](./프로세스/multi-pipe-example.c)**
 
     멀티 파이프 연산을 간단히 구현한 프로그램 입니다.
-4. **[redirection](./프로세스/redirection-example.c)**
+4. **[리다이렉션](./프로세스/redirection-example.c)**
 
     쉘에서 리다이렉션(`<`, `>`, `>>`) 연산을 간단히 구현한 프로그램 입니다.
 
-5. **[daemon](./프로세스/daemon-example.c)**
+5. **[데몬 프로세스](./프로세스/daemon-example.c)**
 
     데몬 프로세스를 만드는 프로그램입니다.
     
 
 ### 스레드
-1. **[thread pool](./스레드/thread-pool.c)**
+1. **[스레드 풀](./스레드/thread-pool.c)**
 
-    스레드풀 구현 예제 입니다.
+    스레드 풀 구현 예제 입니다.
 
 
 ### 메모리
-1. **[file copy](./메모리/simple-copy.c)**
+1. **[파일 복사](./메모리/simple-copy.c)**
 
     파일을 복사하는 프로그램 입니다.
 
@@ -40,7 +40,7 @@
 
     `ls`명령어를 간단히 구현한 프로그램 입니다.
 
-2. **[dir traversal](./디렉토리/dir-traversal.c)**
+2. **[디렉토리 순회](./디렉토리/dir-traversal.c)**
 
     디렉토리 순회를 구현한 프로그림 입니다.
 
@@ -95,7 +95,7 @@
     </pre>
     </details>
 
-6. **[packet capture](./네트워크/packet-capture.c)**
+6. **[패킷 캡처](./네트워크/packet-capture.c)**
 
     raw 소켓을 사용해서 패킷을 캡쳐하는 프로그램입니다.
 

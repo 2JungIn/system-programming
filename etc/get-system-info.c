@@ -4,7 +4,8 @@
 
 void unix_error(const char *msg);   /* error handling function */
 
-int main(void) {
+int main(void)
+{
     struct utsname uts;
 
     if (uname(&uts) < 0) /* error: uname() */

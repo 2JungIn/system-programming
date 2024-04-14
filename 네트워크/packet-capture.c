@@ -23,7 +23,8 @@
 
 void unix_error(const char *msg);
 
-int main(void) {
+int main(void)
+{
     int raw_sock;
     unsigned char buf[BUF_SIZE];
     ssize_t n_read;

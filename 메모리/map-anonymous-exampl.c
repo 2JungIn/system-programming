@@ -27,8 +27,8 @@ int main(void)
     char *memory = NULL;
 
     /* MAP_ANONYMOUS 또는 MAP_ANON을 지원하는 경우 */
-    // if ((memory = (char *)mmap(NULL, memory_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-    //     unix_error("mmap");
+    if ((memory = (char *)mmap(NULL, memory_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+        unix_error("mmap");
 
     /* MAP_ANONYMOUS 또는 MAP_ANON을 지원하지 않는 경우 */
     // int fd;

@@ -74,7 +74,7 @@
 void unix_error(const char *msg);
 void gai_error(const char *msg, const int rc);
 
-unsigned short chksum(unsigned short *addr, int len);
+unsigned short chksum(unsigned short *data, int len);
 struct timespec diff_timespec(const struct timespec *ts1, const struct timespec *ts2);
 int recv_timeout(int fd, void *buffer, size_t n, int flags, int timeout_ms);
 
@@ -244,30 +244,35 @@ void gai_error(const char *msg, const int rc)
 }
 
 
-unsigned short chksum(unsigned short *addr, int len)
+unsigned short chksum(unsigned short *data, int len)
 {
-    int n_left = len;
-    int sum = 0;
-    unsigned short *w = addr;
-    unsigned short answer = 0;
-
-    while (n_left > 1)
+    /**
+     * 체크섬 계산 방법
+     * 1. 데이터를 2byte 단위로 나눠서 더한다. (odd byte의 경우 뒤를 0으로 패딩) 
+     * 2. 덧샘 결과가 2byte를 초과하면 올림수(carry)를 하위 바이트에 더한다. 
+     *    ex) 2DE46 -> DE46 + 0002 = DE48
+     * 3. 덧샘 결과에 1의 보수를 취한다. (0은 1ㄹ로, 1은 10으로 치환)
+    **/
+    unsigned long sum = 0;
+    unsigned short *w = data;   /* temp */
+    
+    /* 2byte 단위의 합 */
+    while (len > 1)
     {
         sum += *w++;
-        n_left -= 2;
+        len -= 2;
     }
 
-    if (n_left == 1)
-    {
-        *(unsigned char *)(&answer) = *(unsigned char *)w;
-        sum += answer;
-    }
+    /* 홀수 바이트 처리 패딩 */
+    if (len == 1)
+        sum += *(unsigned char *)w;
 
-    sum = (sum >> 16) + (sum & 0xffff);
-    sum += (sum >> 16);
-    answer = ~sum;
+    /* 올림수 처리 */
+    while (sum >> 16)
+        sum = (sum >> 16) + (sum & 0xFFFF);
 
-    return answer;
+    /* 1의 보수 처리 */
+    return (unsigned short)~sum;
 }
 
 struct timespec diff_timespec(const struct timespec *ts1, const struct timespec *ts2)
@@ -304,7 +309,7 @@ int recv_timeout(int fd, void *buffer, size_t n, int flags, int timeout_ms)
         unix_error("select");
     
     if (FD_ISSET(fd, &set))
-        return recvfrom(fd, buffer, n, flags, NULL, NULL);
+        return (int)recvfrom(fd, buffer, n, flags, NULL, NULL);
 
     return -1;  /* time out */
 }

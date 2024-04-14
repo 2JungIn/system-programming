@@ -44,7 +44,7 @@ void print_sysconf(int name, const char *description)
 {
     long ret_val = sysconf(name);
     
-    if (errno < 0)   /* error: sysconf() */
+    if (errno)   /* error: sysconf() */
     {
         perror("sysconf");
     }

@@ -37,7 +37,7 @@ void directory_traversal(const char *path, unsigned int depth)
         unix_error("opendir");
 
     /* scan file */
-    while((entries[file_cnt] = readdir(dp)))
+    while ((entries[file_cnt] = readdir(dp)))
     {
         if (!strcmp(entries[file_cnt]->d_name, "."))
             continue;

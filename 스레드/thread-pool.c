@@ -1,7 +1,7 @@
 /**
  * thread-pool.c
  * 
- * 스레드풀 구현 예제 입니다.
+ * 스레드 풀 구현 예제 입니다.
 **/
 
 #define _POSIX_C_SOURCE  200809L
