@@ -1,7 +1,8 @@
 /**
  * Reference
  * [1] https://github.com/neelkanth13/ipv4-and-ipv6-raw-sockets/blob/master/icmpv4%20ping%20packet%20raw%20socket%20code.c
- * 
+ * [3] https://ko.wikipedia.org/wiki/%EC%9D%B8%ED%84%B0%EB%84%B7_%EC%A0%9C%EC%96%B4_%EB%A9%94%EC%8B%9C%EC%A7%80_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C
+ *
  * ping.c 
  * 
  * raw 소켓을 이용해서 핑을 구현한 프로그램 입니다.
@@ -14,7 +15,7 @@
  *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |     Type      |     Code      |          Checksum             |
- *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  8 bytes
  *    |                          Contents                             |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 **/
@@ -37,7 +38,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define PACKET_SIZE     4096
+#define PACKET_SIZE     1440
 #define ICMP_DATA_LEN   56
 
 
@@ -63,7 +64,8 @@ void signal_handler(int signo);
 unsigned short chksum(unsigned short *addr, int len);
 struct timespec diff_timespec(const struct timespec *ts1, const struct timespec *ts2);
 unsigned long get_millisecond(const struct timespec *ts);
-int make_icmp_packet(char *packet, uint8_t type, int seq_no, int id);
+
+int make_icmp_packet(char *packet, uint8_t type, int id, int seq_no);
 int unpack_icmp_reply(char *packet, int len);
 void send_icmp_echo_packet(void);
 void recv_icmp_reply_packet(void);
@@ -232,17 +234,17 @@ unsigned short chksum(unsigned short *addr, int len)
     return answer;
 }
 
-int make_icmp_packet(char *packet, uint8_t type, int seq_no, int id)
+int make_icmp_packet(char *packet, uint8_t type, int id, int seq_no)
 {
     int packet_size = 8 + ICMP_DATA_LEN;
 
     /* ICMP헤더 작성 */
     struct icmp *icmp = (struct icmp *)packet;
-    icmp->icmp_type = type;
-    icmp->icmp_code = 0;
-    icmp->icmp_cksum = 0;
-    icmp->icmp_seq = seq_no;
-    icmp->icmp_id = id;
+    icmp->icmp_type = type;     /* type of message, see below */
+    icmp->icmp_code = 0;        /* type sub code */
+    icmp->icmp_cksum = 0;       /* ones complement checksum of struct */
+    icmp->icmp_id = id;         /* id */
+    icmp->icmp_seq = seq_no;    /* seq number */
     
     struct timespec *tspec = (struct timespec *)(icmp->icmp_data);
     if (clock_gettime(CLOCK_MONOTONIC, tspec) < 0)
@@ -300,7 +302,7 @@ void send_icmp_echo_packet(void)
     char packet[PACKET_SIZE] = { 0 };
 
     send_cnt++;
-    packet_size = make_icmp_packet(packet, ICMP_ECHO, send_cnt, pid);
+    packet_size = make_icmp_packet(packet, ICMP_ECHO, pid, send_cnt);
 
     if (sendto(sockfd, packet, packet_size, 0, ai_dest->ai_addr, ai_dest->ai_addrlen) < 0)
     {
@@ -320,13 +322,12 @@ void recv_icmp_reply_packet(void)
 
     while (recv_cnt < send_cnt)
     {
-        if ((n_recv = (int)recvfrom(sockfd, packet, sizeof(packet), 0, NULL, NULL)) < 0)
+        if ((n_recv = (int)recvfrom(sockfd, packet, sizeof(packet), 0, ai_dest->ai_addr, &ai_dest->ai_addrlen)) < 0)
         {
-            if(errno == EINTR)
+            if (errno == EINTR)
                 continue;
-
-            perror("recvfrom");
-            continue;
+            else
+                unix_error("recvfrom");
         }
 
         if (clock_gettime(CLOCK_MONOTONIC, &ts_recv) < 0)

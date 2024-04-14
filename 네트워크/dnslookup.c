@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        fprintf(stderr, "Usagi: %s <domain name>\n", argv[0]);
+        fprintf(stderr, "usage: %s <domain name>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 

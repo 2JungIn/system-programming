@@ -1,6 +1,8 @@
 /**
  * Reference
  * [1] https://stackoverflow.com/questions/15458438/implementing-traceroute-using-icmp-in-c
+ * [2] https://ko.wikipedia.org/wiki/IPv4
+ * [3] https://ko.wikipedia.org/wiki/%EC%9D%B8%ED%84%B0%EB%84%B7_%EC%A0%9C%EC%96%B4_%EB%A9%94%EC%8B%9C%EC%A7%80_%ED%94%84%EB%A1%9C%ED%86%A0%EC%BD%9C
  * 
  * traceroute.c 
  * 
@@ -34,7 +36,7 @@
  *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |     Type      |     Code      |          Checksum             |
- *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  8 bytes
  *    |                          Contents                             |
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  **/
@@ -57,9 +59,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#define SRC_IP        "192.168.1.13"
-#define IP_ID         56562
-#define RECV_TIMEOUT  1000  /* ms */
+#define SRC_IP           "192.168.1.13"
+#define RECV_TIMEOUT     1000  /* ms */
+#define MAX_HOPS         30
 
 #define ICMP_HEADER_LEN  8
 
@@ -85,7 +87,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    pid_t pid = getpid();
+    pid_t pid = getpid();   /* identification */
 
     int rc_gai;
     struct addrinfo hints, *ai_dest;
@@ -94,7 +96,6 @@ int main(int argc, char *argv[])
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_ADDRCONFIG;
 
     if ((rc_gai = getaddrinfo(argv[1], NULL, &hints, &ai_dest)))
@@ -102,6 +103,8 @@ int main(int argc, char *argv[])
 
     if ((rc_gai = getnameinfo(ai_dest->ai_addr, ai_dest->ai_addrlen, dest_ip, sizeof(dest_ip),  NULL, 0, NI_NUMERICHOST)))
         gai_error("getnameinfo", rc_gai);
+
+    printf("traceroute to %s (%s), %d hops max, %d byte packets\n", argv[1], dest_ip, MAX_HOPS, IP_PACKET_SIZE);
 
     /* raw 소켓 생성 */
     int sockfd;
@@ -120,13 +123,8 @@ int main(int argc, char *argv[])
     struct ip *ip = NULL;
     struct icmp *icmp = NULL;
     struct timespec ts_send, ts_recv, ts_measure;
-    while (1)
+    while (hop < MAX_HOPS)
     {
-        if (hop > 30)
-        {
-            printf("Unable to connect!\n");
-            break;
-        }
         memset(send_packet, 0, sizeof(send_packet));
         memset(recv_packet, 0, sizeof(recv_packet));
 
@@ -137,7 +135,7 @@ int main(int argc, char *argv[])
         ip->ip_hl = 5;      /* header len */
         ip->ip_tos = 0;     /* type of service */
         ip->ip_len = htons(IP_PACKET_SIZE);     /* total length: 28 */
-        ip->ip_id = htons(IP_ID);               /* identification */
+        ip->ip_id = htons(pid);                 /* identification */
         ip->ip_off = 0;             /* fragment offset field */
         ip->ip_ttl = hop;           /* time to live */
         ip->ip_p = IPPROTO_ICMP;    /* protocol */
@@ -154,11 +152,11 @@ int main(int argc, char *argv[])
 
         /* icmp 헤더 작성 */
         icmp = (struct icmp *)(send_packet + IP_HEADER_LEN);
-        icmp->icmp_type = ICMP_ECHO;
-        icmp->icmp_code = 0;
-        icmp->icmp_cksum = 0;
-        icmp->icmp_id = htons(pid);
-        icmp->icmp_seq = hop + 1;
+        icmp->icmp_type = ICMP_ECHO;    /* type of message, see below */
+        icmp->icmp_code = 0;            /* type sub code */
+        icmp->icmp_cksum = 0;           /* ones complement checksum of struct */
+        icmp->icmp_id = pid;            /* id */
+        icmp->icmp_seq = hop + 1;       /* seq number */
         /* icmp 체크섬 계산 */
         icmp->icmp_cksum = chksum((unsigned short *)icmp, ICMP_HEADER_LEN);
 
@@ -168,7 +166,7 @@ int main(int argc, char *argv[])
 
         /* send packet */
         if (sendto(sockfd, send_packet, IP_PACKET_SIZE, 0, ai_dest->ai_addr, ai_dest->ai_addrlen) < 0)
-            perror("sendto");
+            unix_error("sendto");
         
         /* recv packet */
         int n_recv;
@@ -212,7 +210,6 @@ int main(int argc, char *argv[])
 
                 if (icmp->icmp_type == ICMP_ECHOREPLY || icmp->icmp_type == ICMP_DEST_UNREACH)
                 {
-                    printf("complete!\n");
                     break;
                 }
             }

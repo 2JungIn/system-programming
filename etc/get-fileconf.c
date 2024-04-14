@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     const char *path = DEFAULT_PATH;
     if (argc != 2)
-        fprintf(stderr, "Usagi: %s <file name>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <file name>\n", argv[0]);
     else
         path = argv[1];
     

@@ -53,6 +53,32 @@
 
     도메인 주소의 IP주소를 출력하는 프로그램 입니다.
 
+    <details>
+    <summary>실행 결과</summary>
+    <p>case #1</p>
+    <pre>
+    $ ./dnslookup
+    usage: ./dnslookup &lt;domain name&gt;
+    </pre>
+    <p>case #2</p>
+    <pre>
+    $ ./dnslookup google.com
+    Name: google.com
+    Address: 172.217.25.14
+    Address: 2404:6800:4005:815::200e
+    </pre>
+    <p>case #3</p>
+    <pre>
+    $ ./dnslookup naver.com
+    Name: naver.com
+    Address: 223.130.200.236
+    Address: 223.130.192.248
+    Address: 223.130.200.219
+    Address: 223.130.192.247
+    </pre>
+    </details>
+
+
 3. **[packet capture](./네트워크/packet-capture.c)**
 
     raw 소켓을 사용해서 패킷을 캡쳐하는 프로그램입니다.
@@ -61,9 +87,100 @@
 
     raw 소켓을 이용해서 핑을 구현한 프로그램 입니다.
 
+    <details>
+    <summary>실행 결과</summary>
+    <p>case #1</p>
+    <pre>
+    $ sudo ./ping
+    Usage: ./ping &lt;destination&gt;
+    </pre>
+    <p>case #2</p>
+    <pre>
+    $ sudo ./ping 8.8.8.8
+    ING 8.8.8.8(8.8.8.8): 56 bytes data in ICMP packets.
+    64 byte from 8.8.8.8: icmp_seq=1 ttl=113 rtt=48.943 ms
+    64 byte from 8.8.8.8: icmp_seq=2 ttl=113 rtt=49.171 ms
+    64 byte from 8.8.8.8: icmp_seq=3 ttl=113 rtt=49.208 ms
+    ^C
+
+    -----------8.8.8.8 PING statistics-----------
+    3 packets transmitted, 3 received,  0%  loss, time 2090ms
+    rtt min/avg/max = 48.943466 49.107475 49.207863
+    </pre>
+    <p>case #3</p>
+    <pre>
+    $ sudo ./ping naver.com
+    PING naver.com(223.130.192.247): 56 bytes data in ICMP packets.
+    ^C
+
+    -----------naver.com PING statistics-----------
+    3 packets transmitted, 0 received, 100%  loss, time 2246ms
+    </pre>
+    </details>
 5. **[traceroute](./네트워크/traceroute.c)**
 
     raw 소켓을 이용해서 목적지 주소로 이동하기 위한 경로들을 출력하는 프로그램 입니다.
+
+    <details>
+    <summary>실행 결과</summary>
+    <p>case #1</p>
+    <pre>
+    $ sudo ./traceroute
+    Usage: ./traceroute &lt;destination&gt;
+    </pre>
+    <p>case #2</p>
+    <pre>
+    $ sudo ./traceroute google.com
+    traceroute to google.com (142.250.66.110), 30 hops max, 28 byte packets
+    hop: 1  recv ip: 192.168.1.1    1.061 ms
+    hop: 2  recv ip: 10.62.96.1     9.240 ms
+    hop: 3  recv ip: 10.20.14.9     8.801 ms
+    hop: 4  recv ip: 61.43.176.237  8.582 ms
+    timeout!
+    timeout!
+    hop: 7  recv ip: 1.208.149.1    42.063 ms
+    hop: 8  recv ip: 1.208.106.18   45.247 ms
+    hop: 9  recv ip: 61.42.0.26     43.987 ms
+    hop: 10 recv ip: 142.250.168.244        47.233 ms
+    hop: 11 recv ip: 72.14.233.125  47.906 ms
+    hop: 12 recv ip: 66.249.95.129  52.076 ms
+    hop: 13 recv ip: 142.250.66.110 44.054 ms
+    </pre>
+    <p>case #3</p>
+    <pre>
+    $ sudo ./traceroute naver.com
+    traceroute to naver.com (223.130.200.236), 30 hops max, 28 byte packets
+    hop: 1  recv ip: 192.168.1.1    0.869 ms
+    hop: 2  recv ip: 10.62.96.1     7.911 ms
+    hop: 3  recv ip: 10.20.14.1     9.747 ms
+    hop: 4  recv ip: 61.43.176.233  10.473 ms
+    timeout!
+    hop: 6  recv ip: 1.208.167.206  9.798 ms
+    hop: 7  recv ip: 182.162.152.122        10.301 ms
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    timeout!
+    </pre>
+    </details>
 
 
 ### etc
