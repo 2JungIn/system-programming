@@ -168,7 +168,7 @@ void destroy_thread_pool(thread_pool *pool)
     int rc;
     int thread_cnt = pool->thread_cnt;
 
-    /* running 에서 stop을 변경 */
+    /* 스레드 상태를 running 에서 stop으로 변경 */
     for (int i = 0; i < thread_cnt; i++)
         pool->t_args[i].state = 0; /* stop state */
 
